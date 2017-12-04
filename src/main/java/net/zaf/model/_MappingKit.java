@@ -19,7 +19,6 @@ public class _MappingKit {
 		arp.addMapping("data_ship", "id", DataShip.class);
 		arp.addMapping("data_ship_advanced", "id", DataShipAdvanced.class);
 		arp.addMapping("data_ship_performance", "id", DataShipPerformance.class);
-		arp.addMapping("data_ship_performance_evaluate", "id", DataShipPerformanceEvaluate.class);
 		arp.addMapping("data_ship_performance_max", "id", DataShipPerformanceMax.class);
 		arp.addMapping("data_ship_skill", "id", DataShipSkill.class);
 		arp.addMapping("sys_fun", "id", SysFun.class);
