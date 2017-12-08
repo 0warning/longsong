@@ -2,10 +2,12 @@ package net.zaf.controllers;
 
 import com.alibaba.fastjson.JSONObject;
 import net.zaf.crawler.PageProcessorImpl;
-import net.zaf.crawler.dto.CheckType;
+import net.zaf.crawler.dto.Gate;
+import net.zaf.crawler.dto.Type;
 import net.zaf.crawler.dto.Ship;
 import net.zaf.model.*;
 import net.zaf.post.PostMsg;
+import net.zaf.services.DataService;
 import net.zaf.tools.GetMsgFromReader;
 import net.zaf.utils.StrUtils;
 import us.codecraft.webmagic.Page;
@@ -21,42 +23,65 @@ public class MainController extends BaseController {
             if (StrUtils.isBlank(msg)) {
                 return;
             }
+            msg = msg.trim();
             if (!msg.substring(0, 1).equals("-")) {
                 return;
             }
-            String searchMsg = StrUtils.cleanTRN(msg.substring(1, msg.length()).trim());
-            if (StrUtils.isBlank(searchMsg)) {
+            String code = StrUtils.cleanTRN(msg.substring(1, msg.length()).trim());
+            if (StrUtils.isBlank(code)) {
                 return;
             }
-            DataShip ds = DataShip.dao.findFirst("select * from data_ship where name like ? ", "%" + searchMsg + "%");
-            if (ds == null) {
+            DataService dataService = DataService.getInstance();
+            if (!dataService.has(code)) {
                 PostMsg.postMsg(jsonObject, "数据库中未查找到该信息，尝试从wiki中获取，请稍等", true);
-                PageProcessorImpl ppi = new PageProcessorImpl(searchMsg);
+                PageProcessorImpl ppi = new PageProcessorImpl(code);
                 Page page = ppi.getPage();
                 if (page == null) {
-                    PostMsg.postMsg(jsonObject, "从wiki中读取信息失败，主机无法访问到wiki", true);
+                    PostMsg.postMsg(jsonObject, "从wiki中读取信息失败，主机无法访问到wiki，或wiki中无该页面", true);
                     return;
                 }
-                CheckType.DataType dataType = CheckType.getType(page);
-                if (dataType.equals(CheckType.DataType.NONE)) {
-                    PostMsg.postMsg(jsonObject, "从wiki中读取信息成功，但是并没有对应的解析方式", true);
-                    return;
+                Type type = Type.getType(page);
+                switch (type) {
+                    case NONE:
+                        PostMsg.postMsg(jsonObject, "从wiki中读取信息成功，但是并没有对应的解析方式，数据类型：" + type.getDesc(), true);
+                        return;
+                    case SHIP:
+                    case GATE:
+                        PostMsg.postMsg(jsonObject, "从wiki中读取信息成功，正在解析数据，请稍等，数据类型：" + type.getDesc(), true);
+                        break;
                 }
-                if (dataType.equals(CheckType.DataType.SHIP)) {
-                    PostMsg.postMsg(jsonObject, "从wiki中读取信息成功，正在解析数据，请稍等，数据类型：舰娘", true);
-                    Ship dtoShip = new Ship(page);
-                    dtoShip.saveAll();
+                switch (type) {
+                    case SHIP:
+                        Ship dtoShip = new Ship(page);
+                        dtoShip.save();
+                        dataService.saveIndex(dtoShip.getCode(), type);
+                        break;
+                    case GATE:
+                        Gate dtoGate = new Gate(page);
+                        dtoGate.save();
+                        dataService.saveIndex(dtoGate.getCode(), type);
+                        break;
                 }
-                ds = DataShip.dao.findFirst("select * from data_ship where name = ? ", searchMsg);
             }
-            DataShipPerformance dsp = DataShipPerformance.dao.findFirst("select * from data_ship_performance where ship_id = ?", ds.getId());
-            DataShipPerformanceMax dspm = DataShipPerformanceMax.dao.findFirst("select * from data_ship_performance_max where ship_id = ?", ds.getId());
-            List<DataShipSkill> dss = DataShipSkill.dao.find("select * from data_ship_skill where ship_id = ?", ds.getId());
-            List<DataShipAdvanced> dsa = DataShipAdvanced.dao.find("select * from data_ship_advanced where ship_id = ?", ds.getId());
-            PostMsg.postMsg(jsonObject, Ship.dataShipToString(ds));
-            PostMsg.postMsg(jsonObject, Ship.dataShipPerformanceToString(dsp, dspm));
-            PostMsg.postMsg(jsonObject, Ship.dataShipSkillToString(dss));
-            PostMsg.postMsg(jsonObject, Ship.dataShipAdvancedToString(dsa));
+            DataIndex dataIndex = dataService.findIndexByCode(code);
+            Type type = Type.valueOf(dataIndex.getType());
+            code = dataIndex.getCode();
+            switch (type) {
+                case NONE:
+                    PostMsg.postMsg(jsonObject, "从数据库中读取信息成功，但是并没有对应的类型，数据类型：" + type.getDesc(), true);
+                    return;
+                case SHIP:
+                    DataShip dataShip = dataService.findShipByName(code);
+                    PostMsg.postMsg(jsonObject, Ship.toStringShip(dataShip));
+                    PostMsg.postMsg(jsonObject, Ship.toStringShipPerformance(dataShip));
+                    PostMsg.postMsg(jsonObject, Ship.toStringShipSkill(dataShip));
+                    PostMsg.postMsg(jsonObject, Ship.toStringShipAdvanced(dataShip));
+                    break;
+                case GATE:
+                    PostMsg.postMsg(jsonObject, Gate.toStringGate(dataService.findGateByName(code)));
+                    break;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

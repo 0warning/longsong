@@ -16,11 +16,9 @@ import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 public class _MappingKit {
 
 	public static void mapping(ActiveRecordPlugin arp) {
+		arp.addMapping("data_gate", "id", DataGate.class);
+		arp.addMapping("data_index", "id", DataIndex.class);
 		arp.addMapping("data_ship", "id", DataShip.class);
-		arp.addMapping("data_ship_advanced", "id", DataShipAdvanced.class);
-		arp.addMapping("data_ship_performance", "id", DataShipPerformance.class);
-		arp.addMapping("data_ship_performance_max", "id", DataShipPerformanceMax.class);
-		arp.addMapping("data_ship_skill", "id", DataShipSkill.class);
 		arp.addMapping("sys_fun", "id", SysFun.class);
 		arp.addMapping("sys_permission", "id", SysPermission.class);
 	}

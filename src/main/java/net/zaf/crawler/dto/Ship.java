@@ -1,23 +1,31 @@
 package net.zaf.crawler.dto;
 
-import net.zaf.model.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import net.zaf.model.DataShip;
 import net.zaf.post.Data;
 import net.zaf.tools.UUID;
 import net.zaf.utils.StrUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.selector.Selectable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Ship {
     private Page page;
-    private String shipId;
+    private String code;
 
     public Ship(Page page) {
         this.page = page;
     }
 
-    public void saveAll() throws Exception {
+    public String getCode() {
+        return code;
+    }
+
+    public void save() throws Exception {
         saveShip();
         saveShipPerformance();
         saveShipPerformanceMax();
@@ -28,104 +36,94 @@ public class Ship {
     public boolean saveShip() {
         Selectable selectables = page.getHtml().$("div.jntj").$("table.wikitable");
         Selectable selectable = selectables.nodes().get(0);
+        code = page.getUrl().toString().substring(page.getUrl().toString().lastIndexOf("/") + 1, page.getUrl().toString().length());
         DataShip ds = new DataShip();
         ds.setId(UUID.uuid());
-        ds.set("name", page.getUrl().toString().substring(page.getUrl().toString().lastIndexOf("/") + 1, page.getUrl().toString().length()));
+        ds.set("name", code);
         ds.set("no", StrUtils.cleanTRN(selectable.xpath("//tr[2]//td[3]//text()").toString().trim()));
         ds.set("star", StrUtils.cleanTRN(selectable.xpath("//tr[2]//td[5]//text()").toString().trim()));
         ds.set("type", StrUtils.cleanTRN(selectable.xpath("//tr[3]//td[2]//text()").toString().trim()));
         ds.set("rarity", StrUtils.cleanTRN(selectable.xpath("//tr[3]//td[4]//text()").toString().trim()));
         ds.set("group", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[2]//text()").toString().trim()));
         ds.set("building_time", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[4]//text()").toString().trim()));
-        this.shipId = ds.getId();
+        List<Selectable> ps = selectable.xpath("//tr[5]//td[2]//a").nodes();
+        List<String> psStr = new ArrayList<>();
+        for (int i = 0; i < ps.size(); i++) {
+            psStr.add(ps.get(i).xpath("//a//text()").toString());
+        }
+        ds.set("catch_place", StrUtils.cleanTRN(StrUtils.join(psStr.toArray(new String[]{}), "、").trim()));
+        ds.set("nutritive_value", StrUtils.cleanTRN(selectable.xpath("//tr[6]//td[2]//text()").toString().trim()));
+        ds.set("sell_value", StrUtils.cleanTRN(selectable.xpath("//tr[7]//td[2]//text()").toString().trim()));
+        ds.set("performance", this.saveShipPerformance());
+        ds.set("performance_max", this.saveShipPerformanceMax());
+        ds.set("skill", this.saveShipSkill());
+        ds.set("advanced", this.saveShipAdvanced());
         return ds.save();
     }
 
-    public boolean saveShipPerformance() throws Exception {
-        if (StrUtils.isBlank(shipId)) {
-            throw new Exception("shipId is empty, please use dtoShip first");
-        }
-        Selectable selectables = page.getHtml().$("div.jntj").$("table.wikitable");
-        Selectable selectable = selectables.nodes().get(2);
-        DataShipPerformance dsp = new DataShipPerformance();
-        dsp.setId(UUID.uuid());
-        dsp.setShipId(shipId);
-        dsp.set("attr_nj", getMin(selectable.xpath("//tr").nodes().get(10).xpath("//td[2]/text()").toString()));
-        dsp.set("attr_zj", getMin(selectable.xpath("//tr").nodes().get(10).xpath("//td[4]/text()").toString()));
-        dsp.set("attr_zt", getMin(selectable.xpath("//tr").nodes().get(10).xpath("//td[6]/text()").toString()));
-        dsp.set("attr_pj", getMin(selectable.xpath("//tr").nodes().get(11).xpath("//td[2]/text()").toString()));
-        dsp.set("attr_lj", getMin(selectable.xpath("//tr").nodes().get(11).xpath("//td[4]/text()").toString()));
-        dsp.set("attr_jd", getMin(selectable.xpath("//tr").nodes().get(11).xpath("//td[6]/text()").toString()));
-        dsp.set("attr_fk", getMin(selectable.xpath("//tr").nodes().get(12).xpath("//td[2]/text()").toString()));
-        dsp.set("attr_hk", getMin(selectable.xpath("//tr").nodes().get(12).xpath("//td[4]/text()").toString()));
-        dsp.set("attr_xh", getMin(selectable.xpath("//tr").nodes().get(12).xpath("//td[6]/text()").toString()));
-        dsp.set("attr_hs", getMin(selectable.xpath("//tr").nodes().get(13).xpath("//td[2]/text()").toString()));
-        return dsp.save();
+    public String saveShipPerformance() {
+        Selectable selectable = page.getHtml().$("div.jntj").$("table.wikitable").nodes().get(2);
+        JSONObject dsp = new JSONObject();
+        dsp.put("attr_nj", getMin(selectable.xpath("//tr").nodes().get(10).xpath("//td[2]/text()").toString()));
+        dsp.put("attr_zj", getMin(selectable.xpath("//tr").nodes().get(10).xpath("//td[4]/text()").toString()));
+        dsp.put("attr_zt", getMin(selectable.xpath("//tr").nodes().get(10).xpath("//td[6]/text()").toString()));
+        dsp.put("attr_pj", getMin(selectable.xpath("//tr").nodes().get(11).xpath("//td[2]/text()").toString()));
+        dsp.put("attr_lj", getMin(selectable.xpath("//tr").nodes().get(11).xpath("//td[4]/text()").toString()));
+        dsp.put("attr_jd", getMin(selectable.xpath("//tr").nodes().get(11).xpath("//td[6]/text()").toString()));
+        dsp.put("attr_fk", getMin(selectable.xpath("//tr").nodes().get(12).xpath("//td[2]/text()").toString()));
+        dsp.put("attr_hk", getMin(selectable.xpath("//tr").nodes().get(12).xpath("//td[4]/text()").toString()));
+        dsp.put("attr_xh", getMin(selectable.xpath("//tr").nodes().get(12).xpath("//td[6]/text()").toString()));
+        dsp.put("attr_hs", getMin(selectable.xpath("//tr").nodes().get(13).xpath("//td[2]/text()").toString()));
+        return dsp.toJSONString();
     }
 
-    public boolean saveShipPerformanceMax() throws Exception {
-        if (StrUtils.isBlank(shipId)) {
-            throw new Exception("shipId is empty, please use dtoShip first");
-        }
-        Selectable selectables = page.getHtml().$("div.jntj").$("table.wikitable");
-        Selectable selectable = selectables.nodes().get(2);
-        DataShipPerformanceMax dspm = new DataShipPerformanceMax();
-        dspm.setId(UUID.uuid());
-        dspm.setShipId(shipId);
-        dspm.set("attr_nj", getMax(selectable.xpath("//tr").nodes().get(10).xpath("//td[2]/text()").toString()));
-        dspm.set("attr_zj", getMax(selectable.xpath("//tr").nodes().get(10).xpath("//td[4]/text()").toString()));
-        dspm.set("attr_zt", getMax(selectable.xpath("//tr").nodes().get(10).xpath("//td[6]/text()").toString()));
-        dspm.set("attr_pj", getMax(selectable.xpath("//tr").nodes().get(11).xpath("//td[2]/text()").toString()));
-        dspm.set("attr_lj", getMax(selectable.xpath("//tr").nodes().get(11).xpath("//td[4]/text()").toString()));
-        dspm.set("attr_jd", getMax(selectable.xpath("//tr").nodes().get(11).xpath("//td[6]/text()").toString()));
-        dspm.set("attr_fk", getMax(selectable.xpath("//tr").nodes().get(12).xpath("//td[2]/text()").toString()));
-        dspm.set("attr_hk", getMax(selectable.xpath("//tr").nodes().get(12).xpath("//td[4]/text()").toString()));
-        dspm.set("attr_xh", getMax(selectable.xpath("//tr").nodes().get(12).xpath("//td[6]/text()").toString()));
-        dspm.set("attr_hs", getMax(selectable.xpath("//tr").nodes().get(13).xpath("//td[2]/text()").toString()));
-        return dspm.save();
+    public String saveShipPerformanceMax() {
+        Selectable selectable = page.getHtml().$("div.jntj").$("table.wikitable").nodes().get(2);
+        JSONObject dspm = new JSONObject();
+        dspm.put("attr_nj", getMax(selectable.xpath("//tr").nodes().get(10).xpath("//td[2]/text()").toString()));
+        dspm.put("attr_zj", getMax(selectable.xpath("//tr").nodes().get(10).xpath("//td[4]/text()").toString()));
+        dspm.put("attr_zt", getMax(selectable.xpath("//tr").nodes().get(10).xpath("//td[6]/text()").toString()));
+        dspm.put("attr_pj", getMax(selectable.xpath("//tr").nodes().get(11).xpath("//td[2]/text()").toString()));
+        dspm.put("attr_lj", getMax(selectable.xpath("//tr").nodes().get(11).xpath("//td[4]/text()").toString()));
+        dspm.put("attr_jd", getMax(selectable.xpath("//tr").nodes().get(11).xpath("//td[6]/text()").toString()));
+        dspm.put("attr_fk", getMax(selectable.xpath("//tr").nodes().get(12).xpath("//td[2]/text()").toString()));
+        dspm.put("attr_hk", getMax(selectable.xpath("//tr").nodes().get(12).xpath("//td[4]/text()").toString()));
+        dspm.put("attr_xh", getMax(selectable.xpath("//tr").nodes().get(12).xpath("//td[6]/text()").toString()));
+        dspm.put("attr_hs", getMax(selectable.xpath("//tr").nodes().get(13).xpath("//td[2]/text()").toString()));
+        return dspm.toJSONString();
     }
 
-    public boolean saveShipSkill() throws Exception {
-        if (StrUtils.isBlank(shipId)) {
-            throw new Exception("shipId is empty, please use dtoShip first");
-        }
-        Selectable selectables = page.getHtml().$("div.jntj").$("table.wikitable");
-        Selectable selectable = selectables.nodes().get(6);
+    public String saveShipSkill() {
+        Selectable selectable = page.getHtml().$("div.jntj").$("table.wikitable").nodes().get(6);
         List<Selectable> nodes = selectable.xpath("//tr").nodes();
+        JSONArray array = new JSONArray();
         for (int i = 0; i < nodes.size(); i++) {
             if (i == 0) continue;
             if (StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/text()").toString().trim()).equals("")) continue;
-            DataShipSkill dss = new DataShipSkill();
-            dss.setId(UUID.uuid());
-            dss.setShipId(shipId);
-            dss.set("skill_name", StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/text()").toString().trim()));
-            dss.set("skill_content", StrUtils.cleanTRN(nodes.get(i).xpath("//td[2]/text()").toString().trim()));
-            dss.save();
+            JSONObject dss = new JSONObject();
+            dss.put("skill_name", StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/text()").toString().trim()));
+            dss.put("skill_content", StrUtils.cleanTRN(nodes.get(i).xpath("//td[2]/text()").toString().trim()));
+            array.add(dss);
         }
-        return true;
+        return array.toJSONString();
     }
 
-    public boolean saveShipAdvanced() throws Exception {
-        if (StrUtils.isBlank(shipId)) {
-            throw new Exception("shipId is empty, please use dtoShip first");
-        }
-        Selectable selectables = page.getHtml().$("div.jntj").$("table.wikitable");
-        Selectable selectable = selectables.nodes().get(4);
+    public String saveShipAdvanced() {
+        Selectable selectable = page.getHtml().$("div.jntj").$("table.wikitable").nodes().get(4);
         List<Selectable> nodes = selectable.xpath("//tr").nodes();
+        JSONArray array = new JSONArray();
         for (int i = 0; i < nodes.size(); i++) {
             if (i == 0) continue;
             if (StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/b/text()").toString().trim()).equals("")) continue;
-            DataShipAdvanced dsa = new DataShipAdvanced();
-            dsa.setId(UUID.uuid());
-            dsa.setShipId(shipId);
-            dsa.set("adv_name", StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/b/text()").toString().trim()));
-            dsa.set("adv_content", StrUtils.cleanTRN(nodes.get(i).xpath("//td[2]/text()").toString().trim()));
-            dsa.save();
+            JSONObject dsa = new JSONObject();
+            dsa.put("adv_name", StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/b/text()").toString().trim()));
+            dsa.put("adv_content", StrUtils.cleanTRN(nodes.get(i).xpath("//td[2]/text()").toString().trim()));
+            array.add(dsa);
         }
-        return true;
+        return array.toJSONString();
     }
 
-    public static String dataShipToString(DataShip dataShip) {
+    public static String toStringShip(DataShip dataShip) {
         StringBuffer sbf = new StringBuffer();
         sbf.append("舰娘基础信息：");
         sbf.append(Data.newLine);
@@ -142,56 +140,66 @@ public class Ship {
         sbf.append("阵营：" + dataShip.getStr("group"));
         sbf.append(Data.newLine);
         sbf.append("建造耗时：" + dataShip.getStr("building_time"));
+        sbf.append(Data.newLine);
+        sbf.append("获取关卡：" + dataShip.getStr("catch_place"));
+        sbf.append(Data.newLine);
+        sbf.append("强化价值：" + dataShip.getStr("nutritive_value"));
+        sbf.append(Data.newLine);
+        sbf.append("卖出价值：" + dataShip.getStr("sell_value"));
         return sbf.toString();
     }
 
-    public static String dataShipAdvancedToString(List<DataShipAdvanced> list) {
+    public static String toStringShipAdvanced(DataShip dataShip) {
+        JSONArray list = JSON.parseArray(dataShip.getAdvanced());
         StringBuffer sbf = new StringBuffer();
         sbf.append("舰娘进阶：");
         for (int i = 0; i < list.size(); i++) {
             sbf.append(Data.newLine);
-            sbf.append(list.get(i).getStr("adv_name"));
+            sbf.append(list.getJSONObject(i).get("adv_name"));
             sbf.append("：");
-            sbf.append(list.get(i).getStr("adv_content"));
+            sbf.append(list.getJSONObject(i).get("adv_content"));
         }
         return sbf.toString();
     }
 
-    public static String dataShipSkillToString(List<DataShipSkill> list) {
+    public static String toStringShipSkill(DataShip dataShip) {
+        JSONArray list = JSON.parseArray(dataShip.getSkill());
         StringBuffer sbf = new StringBuffer();
         sbf.append("舰娘技能：");
         for (int i = 0; i < list.size(); i++) {
             sbf.append(Data.newLine);
-            sbf.append(list.get(i).getStr("skill_name"));
+            sbf.append(list.getJSONObject(i).get("skill_name"));
             sbf.append("：");
-            sbf.append(list.get(i).getStr("skill_content"));
+            sbf.append(list.getJSONObject(i).get("skill_content"));
         }
         return sbf.toString();
     }
-    
-    public static String dataShipPerformanceToString(DataShipPerformance dataShipPerformance, DataShipPerformanceMax dataShipPerformanceMax) {
+
+    public static String toStringShipPerformance(DataShip dataShip) {
+        JSONObject dsp = JSON.parseObject(dataShip.getPerformance());
+        JSONObject dspm = JSON.parseObject(dataShip.getPerformanceMax());
         StringBuffer sbf = new StringBuffer();
         sbf.append("舰娘属性：");
         sbf.append(Data.newLine);
-        sbf.append("耐久：" + dataShipPerformance.getStr("attr_nj") + "->" + dataShipPerformanceMax.getStr("attr_nj"));
+        sbf.append("耐久：" + dsp.get("attr_nj") + "->" + dspm.get("attr_nj"));
         sbf.append(Data.newLine);
-        sbf.append("装甲：" + dataShipPerformance.getStr("attr_zj") + "->" + dataShipPerformanceMax.getStr("attr_zj"));
+        sbf.append("装甲：" + dsp.get("attr_zj") + "->" + dspm.get("attr_zj"));
         sbf.append(Data.newLine);
-        sbf.append("装填：" + dataShipPerformance.getStr("attr_zt") + "->" + dataShipPerformanceMax.getStr("attr_zt"));
+        sbf.append("装填：" + dsp.get("attr_zt") + "->" + dspm.get("attr_zt"));
         sbf.append(Data.newLine);
-        sbf.append("炮击：" + dataShipPerformance.getStr("attr_pj") + "->" + dataShipPerformanceMax.getStr("attr_pj"));
+        sbf.append("炮击：" + dsp.get("attr_pj") + "->" + dspm.get("attr_pj"));
         sbf.append(Data.newLine);
-        sbf.append("雷击：" + dataShipPerformance.getStr("attr_lj") + "->" + dataShipPerformanceMax.getStr("attr_lj"));
+        sbf.append("雷击：" + dsp.get("attr_lj") + "->" + dspm.get("attr_lj"));
         sbf.append(Data.newLine);
-        sbf.append("机动：" + dataShipPerformance.getStr("attr_jd") + "->" + dataShipPerformanceMax.getStr("attr_jd"));
+        sbf.append("机动：" + dsp.get("attr_jd") + "->" + dspm.get("attr_jd"));
         sbf.append(Data.newLine);
-        sbf.append("防空：" + dataShipPerformance.getStr("attr_fk") + "->" + dataShipPerformanceMax.getStr("attr_fk"));
+        sbf.append("防空：" + dsp.get("attr_fk") + "->" + dspm.get("attr_fk"));
         sbf.append(Data.newLine);
-        sbf.append("航空：" + dataShipPerformance.getStr("attr_hk") + "->" + dataShipPerformanceMax.getStr("attr_hk"));
+        sbf.append("航空：" + dsp.get("attr_hk") + "->" + dspm.get("attr_hk"));
         sbf.append(Data.newLine);
-        sbf.append("消耗：" + dataShipPerformance.getStr("attr_xh") + "->" + dataShipPerformanceMax.getStr("attr_xh"));
+        sbf.append("消耗：" + dsp.get("attr_xh") + "->" + dspm.get("attr_xh"));
         sbf.append(Data.newLine);
-        sbf.append("航速：" + dataShipPerformance.getStr("attr_hs") + "->" + dataShipPerformanceMax.getStr("attr_hs"));
+        sbf.append("航速：" + dsp.get("attr_hs") + "->" + dspm.get("attr_hs"));
         return sbf.toString();
     }
 

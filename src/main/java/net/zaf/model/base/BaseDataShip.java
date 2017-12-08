@@ -73,4 +73,60 @@ public abstract class BaseDataShip<M extends BaseDataShip<M>> extends Model<M> i
 		return get("building_time");
 	}
 
+	public void setCatchPlace(java.lang.String catchPlace) {
+		set("catch_place", catchPlace);
+	}
+
+	public java.lang.String getCatchPlace() {
+		return get("catch_place");
+	}
+
+	public void setNutritiveValue(java.lang.String nutritiveValue) {
+		set("nutritive_value", nutritiveValue);
+	}
+
+	public java.lang.String getNutritiveValue() {
+		return get("nutritive_value");
+	}
+
+	public void setSellValue(java.lang.String sellValue) {
+		set("sell_value", sellValue);
+	}
+
+	public java.lang.String getSellValue() {
+		return get("sell_value");
+	}
+
+	public void setAdvanced(java.lang.String advanced) {
+		set("advanced", advanced);
+	}
+
+	public java.lang.String getAdvanced() {
+		return get("advanced");
+	}
+
+	public void setPerformance(java.lang.String performance) {
+		set("performance", performance);
+	}
+
+	public java.lang.String getPerformance() {
+		return get("performance");
+	}
+
+	public void setPerformanceMax(java.lang.String performanceMax) {
+		set("performance_max", performanceMax);
+	}
+
+	public java.lang.String getPerformanceMax() {
+		return get("performance_max");
+	}
+
+	public void setSkill(java.lang.String skill) {
+		set("skill", skill);
+	}
+
+	public java.lang.String getSkill() {
+		return get("skill");
+	}
+
 }
