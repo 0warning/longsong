@@ -46,12 +46,7 @@ public class Ship {
         ds.set("rarity", StrUtils.cleanTRN(selectable.xpath("//tr[3]//td[4]//text()").toString().trim()));
         ds.set("group", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[2]//text()").toString().trim()));
         ds.set("building_time", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[4]//text()").toString().trim()));
-        List<Selectable> ps = selectable.xpath("//tr[5]//td[2]//a").nodes();
-        List<String> psStr = new ArrayList<>();
-        for (int i = 0; i < ps.size(); i++) {
-            psStr.add(ps.get(i).xpath("//a//text()").toString());
-        }
-        ds.set("catch_place", StrUtils.cleanTRN(StrUtils.join(psStr.toArray(new String[]{}), "、").trim()));
+        ds.set("catch_place", StrUtils.cleanTRN(StrUtils.delHTMLTag(selectable.xpath("//tr[5]//td[2]").toString())));
         ds.set("nutritive_value", StrUtils.cleanTRN(selectable.xpath("//tr[6]//td[2]//text()").toString().trim()));
         ds.set("sell_value", StrUtils.cleanTRN(selectable.xpath("//tr[7]//td[2]//text()").toString().trim()));
         ds.set("performance", this.saveShipPerformance());

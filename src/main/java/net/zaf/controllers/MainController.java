@@ -79,6 +79,7 @@ public class MainController extends BaseController {
                     break;
                 case GATE:
                     PostMsg.postMsg(jsonObject, Gate.toStringGate(dataService.findGateByName(code)));
+                    PostMsg.postMsg(jsonObject, Gate.toStringGateAwardList(dataService.findGateByName(code)));
                     break;
             }
 

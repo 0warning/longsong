@@ -8,38 +8,44 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.jfinal.kit.PathKit;
 import com.jfinal.kit.StrKit;
 
 /**
  * 字符串工具类
+ *
  * @author L.cm
  */
 public class StrUtils extends StrKit {
     /**
      * 清除左右空格
+     *
      * @param str 字符串
      * @return String
      */
     public static String trim(String str) {
         return str == null ? null : str.trim();
     }
-    
+
     /**
      * 清除左右空格，null to ""
+     *
      * @param str
      * @return
      */
     public static String trimToEmpty(String str) {
-       if (str == null) {
-           return "";
-       }
-       return str.trim();
+        if (str == null) {
+            return "";
+        }
+        return str.trim();
     }
-    
+
     /**
      * 生成sql占位符 ?,?,?
+     *
      * @param size
      * @return ?,?,?
      */
@@ -51,6 +57,7 @@ public class StrUtils extends StrKit {
 
     /**
      * 实现简易的模板
+     *
      * @param view
      * @param map
      * @return
@@ -67,12 +74,12 @@ public class StrUtils extends StrKit {
 
     /**
      * 字符串格式化
-     * 
+     * <p>
      * use: format("my name is {0}, and i like {1}!", "L.cm", "java")
-     * 
+     * <p>
      * int long use {0,number,#}
-     * 
-     * @param s 
+     *
+     * @param s
      * @param args
      * @return 转换后的字符串
      */
@@ -82,6 +89,7 @@ public class StrUtils extends StrKit {
 
     /**
      * 转义HTML用于安全过滤
+     *
      * @param html
      * @return
      */
@@ -96,22 +104,24 @@ public class StrUtils extends StrKit {
 
     /**
      * 清理字符串，清理出某些不可见字符
+     *
      * @param txt
      * @return {String}
      */
     public static String cleanChars(String txt) {
         return txt.replaceAll("[ 　`·•�\\f\\t\\v\\s]", "");
     }
-    
+
     /**
      * 清理换行符，制表符
+     *
      * @param str
      * @return
      */
     public static String cleanTRN(String str) {
-    	return str.replaceAll("\t|\r|\n", "");
-	}
-    
+        return str.replaceAll("\t|\r|\n", "");
+    }
+
     // 随机字符串
     private static final String _INT = "0123456789";
     private static final String _STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -121,6 +131,7 @@ public class StrUtils extends StrKit {
 
     /**
      * 生成的随机数类型
+     *
      * @author L.cm
      * @email: 596392912@qq.com
      * @site: http://www.dreamlu.net
@@ -132,16 +143,18 @@ public class StrUtils extends StrKit {
 
     /**
      * 随机数生成
+     *
      * @param count 字符长度
      * @return 随机数
      */
     public static String random(int count) {
         return StrUtils.random(count, RandomType.ALL);
     }
-    
+
     /**
      * 随机数生成
-     * @param count 字符长度
+     *
+     * @param count      字符长度
      * @param randomType 随机数类别
      * @return 随机数
      */
@@ -156,17 +169,17 @@ public class StrUtils extends StrKit {
                 buffer[i] = _INT.charAt(RANDOM.nextInt(_INT.length()));
             } else if (randomType.equals(RandomType.STRING)) {
                 buffer[i] = _STR.charAt(RANDOM.nextInt(_STR.length()));
-            }else {
+            } else {
                 buffer[i] = _ALL.charAt(RANDOM.nextInt(_ALL.length()));
             }
         }
         return new String(buffer);
     }
-    
+
     public static String[] split(String str) {
         return StrUtils.split(str, ',');
     }
-    
+
     public static String[] split(String str, char delimiter) {
         List<String> results = new ArrayList<String>();
 
@@ -181,4 +194,11 @@ public class StrUtils extends StrKit {
         return results.toArray(new String[results.size()]);
     }
 
+    public static String delHTMLTag(String htmlStr) {
+        String regEx_html = "<[^>]+>";
+        Pattern p_html = Pattern.compile(regEx_html, Pattern.CASE_INSENSITIVE);
+        Matcher m_html = p_html.matcher(htmlStr);
+        htmlStr = m_html.replaceAll("");
+        return htmlStr.trim();
+    }
 }
