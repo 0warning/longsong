@@ -2,6 +2,6 @@
 
 bot小歌服务端
 
-调用CoolQ
+使用CoolQ https://cqp.cc/
 
-使用CoolQ HTTP API
+调用CoolQ HTTP API https://github.com/richardchien/coolq-http-api
