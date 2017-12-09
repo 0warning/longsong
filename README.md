@@ -1,11 +1,7 @@
-git remote add origin https://github.com/0warning/longsong.git
+# longsong
 
-git push -u origin master
+bot小歌服务端
 
----
+调用CoolQ
 
-git add .
-
-git commit -m "."
-
-git push
+使用CoolQ HTTP API
