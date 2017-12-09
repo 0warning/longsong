@@ -129,4 +129,12 @@ public abstract class BaseDataShip<M extends BaseDataShip<M>> extends Model<M> i
 		return get("skill");
 	}
 
+	public void setRemake(java.lang.String remake) {
+		set("remake", remake);
+	}
+
+	public java.lang.String getRemake() {
+		return get("remake");
+	}
+
 }

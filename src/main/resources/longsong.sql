@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50517
 File Encoding         : 65001
 
-Date: 2017-12-08 17:19:34
+Date: 2017-12-09 16:30:56
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -25,7 +25,7 @@ CREATE TABLE `data_gate` (
   `need_level` varchar(128) NOT NULL COMMENT '需求等级',
   `boss_add` varchar(128) NOT NULL COMMENT '旗舰刷新',
   `clear_award` varchar(128) NOT NULL COMMENT '地图掉落',
-  `award_list` varchar(1024) DEFAULT NULL COMMENT '掉落信息',
+  `award_list` text COMMENT '掉落信息',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -68,6 +68,7 @@ CREATE TABLE `data_ship` (
   `performance` text COMMENT '属性',
   `performance_max` text COMMENT '最大属性',
   `skill` text COMMENT '技能',
+  `remake` text COMMENT '改造信息',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='舰娘基础信息';
 

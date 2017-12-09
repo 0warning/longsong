@@ -19,6 +19,7 @@ public class MainController extends BaseController {
     public void index() throws Exception {
         try {
             JSONObject jsonObject = GetMsgFromReader.toMap(GetMsgFromReader.get(getRequest().getReader()));
+            if (jsonObject == null) return;
             String msg = jsonObject.getString("message");
             if (StrUtils.isBlank(msg)) {
                 return;
@@ -33,21 +34,21 @@ public class MainController extends BaseController {
             }
             DataService dataService = DataService.getInstance();
             if (!dataService.has(code)) {
-                PostMsg.postMsg(jsonObject, "数据库中未查找到该信息，尝试从wiki中获取，请稍等", true);
+//                PostMsg.postMsg(jsonObject, "数据库中未查找到该信息，尝试从wiki中获取，请稍等", true);
                 PageProcessorImpl ppi = new PageProcessorImpl(code);
                 Page page = ppi.getPage();
                 if (page == null) {
-                    PostMsg.postMsg(jsonObject, "从wiki中读取信息失败，主机无法访问到wiki，或wiki中无该页面", true);
+//                    PostMsg.postMsg(jsonObject, "从wiki中读取信息失败，主机无法访问到wiki，或wiki中无该页面", true);
                     return;
                 }
                 Type type = Type.getType(page);
                 switch (type) {
                     case NONE:
-                        PostMsg.postMsg(jsonObject, "从wiki中读取信息成功，但是并没有对应的解析方式，数据类型：" + type.getDesc(), true);
+//                        PostMsg.postMsg(jsonObject, "从wiki中读取信息成功，但是并没有对应的解析方式，数据类型：" + type.getDesc(), true);
                         return;
                     case SHIP:
                     case GATE:
-                        PostMsg.postMsg(jsonObject, "从wiki中读取信息成功，正在解析数据，请稍等，数据类型：" + type.getDesc(), true);
+//                        PostMsg.postMsg(jsonObject, "从wiki中读取信息成功，正在解析数据，请稍等，数据类型：" + type.getDesc(), true);
                         break;
                 }
                 switch (type) {
@@ -68,7 +69,6 @@ public class MainController extends BaseController {
             code = dataIndex.getCode();
             switch (type) {
                 case NONE:
-                    PostMsg.postMsg(jsonObject, "从数据库中读取信息成功，但是并没有对应的类型，数据类型：" + type.getDesc(), true);
                     return;
                 case SHIP:
                     DataShip dataShip = dataService.findShipByName(code);
@@ -76,6 +76,7 @@ public class MainController extends BaseController {
                     PostMsg.postMsg(jsonObject, Ship.toStringShipPerformance(dataShip));
                     PostMsg.postMsg(jsonObject, Ship.toStringShipSkill(dataShip));
                     PostMsg.postMsg(jsonObject, Ship.toStringShipAdvanced(dataShip));
+                    PostMsg.postMsg(jsonObject, Ship.toStringRemark(dataShip));
                     break;
                 case GATE:
                     PostMsg.postMsg(jsonObject, Gate.toStringGate(dataService.findGateByName(code)));

@@ -19,13 +19,14 @@ public class GetMsgFromReader {
 			reader.close();
 			return json.toString();
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		return null;
 	}
 	
 	public static JSONObject toMap(String json) {
-		
+		if (json == null) {
+			return null;
+		}
 		return (JSONObject) JSON.parse(json);
 	}
 }
