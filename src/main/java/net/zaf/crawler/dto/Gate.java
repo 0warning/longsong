@@ -35,8 +35,8 @@ public class Gate {
         dataGate.setId(UUID.uuid());
         dataGate.set("name", code);
         dataGate.set("need_level", StrUtils.cleanTRN(StrUtils.delHTMLTag(selectable.xpath("//tr[3]//td").toString())));
-        dataGate.set("boss_add", StrUtils.cleanTRN(StrUtils.delHTMLTag(selectable.xpath("//tr[8]//td").toString())));
-        dataGate.set("clear_award", StrUtils.cleanTRN(selectable.xpath("//tr[9]//td//text()").toString().trim()));
+        dataGate.set("boss_add", StrUtils.cleanTRN(StrUtils.delHTMLTag(selectable.xpath("//tr[9]//td").toString())));
+        dataGate.set("clear_award", StrUtils.cleanTRN(selectable.xpath("//tr[10]//td//text()").toString().trim()));
         dataGate.set("award_list", this.saveGateAwardList());
         return dataGate.save();
     }

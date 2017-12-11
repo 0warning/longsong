@@ -39,7 +39,7 @@ public enum Type {
         } catch (Exception e) {
         }
         try {
-            String text = page.getHtml().$("table.wikitable").nodes().get(0).xpath("//tr[8]//th//text()").toString();
+            String text = page.getHtml().$("table.wikitable").nodes().get(0).xpath("//tr[9]//th//text()").toString();
             if (text != null && text.contains("旗舰刷新")) {
                 return Type.GATE;
             }
