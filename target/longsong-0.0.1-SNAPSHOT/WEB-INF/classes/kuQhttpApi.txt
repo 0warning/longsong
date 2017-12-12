@@ -1,0 +1,2 @@
+post.path.host=127.0.0.1
+post.path.port=5700
