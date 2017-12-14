@@ -1,14 +1,5 @@
 /.idea/*
 /.idea
-/*/target
-/*/out/
-/*/logs/
-/*/.settings/
-/*/.classpath
-/*/.project
-/.settings/
-/.project
+/target/*
+/target/
 /*.iml
-/*/*.iml
-/*/bin
-*/logs
