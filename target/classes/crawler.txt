@@ -1,1 +1,0 @@
-crawler.url=http://wiki.joyme.com/blhx/
