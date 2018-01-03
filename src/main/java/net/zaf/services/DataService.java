@@ -23,7 +23,7 @@ public class DataService extends BaseService {
     }
 
     private class SqlStr {
-        private static final String FIND_INDEX_BY_CODE = "select * from data_index where code like ?";
+        private static final String FIND_INDEX_BY_CODE = "select * from data_index where code = ?";
         private static final String FIND_SHIP_BY_NAME = "select * from data_ship where name = ? ";
         private static final String FIND_GATE_BY_NAME = "select * from data_gate where name = ?";
     }
@@ -41,7 +41,7 @@ public class DataService extends BaseService {
     }
 
     public DataIndex findIndexByCode(String code) {
-        return DataIndex.dao.findFirst(SqlStr.FIND_INDEX_BY_CODE, "%" + code + "%");
+        return DataIndex.dao.findFirst(SqlStr.FIND_INDEX_BY_CODE, code);
     }
 
     public DataShip findShipByName(String name) {
