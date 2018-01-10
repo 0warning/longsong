@@ -39,7 +39,7 @@ public class Ship {
         ds.set("type", StrUtils.cleanTRN(selectable.xpath("//tr[3]//td[2]//text()").toString().trim()));
         ds.set("rarity", StrUtils.cleanTRN(selectable.xpath("//tr[3]//td[4]//text()").toString().trim()));
         ds.set("group", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[2]//text()").toString().trim()));
-        ds.set("building_time", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[4]//text()").toString().trim()));
+        ds.set("building_time", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[4]//a/text()").toString().trim()));
         ds.set("catch_place", StrUtils.cleanTRN(StrUtils.delHTMLTag(selectable.xpath("//tr[5]//td[2]").toString())));
         ds.set("nutritive_value", StrUtils.cleanTRN(selectable.xpath("//tr[6]//td[2]//text()").toString().trim()));
         ds.set("sell_value", StrUtils.cleanTRN(selectable.xpath("//tr[7]//td[2]//text()").toString().trim()));
@@ -85,11 +85,12 @@ public class Ship {
 
     public String getSkillJson() {
         Selectable selectable = page.getHtml().$("div.jntj").$("table.wikitable").nodes().get(6);
-        List<Selectable> nodes = selectable.xpath("//tr").nodes();
+        List<Selectable> nodes = selectable.xpath("//tr[@style!=\"display:none;\"]").nodes();
         JSONArray array = new JSONArray();
         for (int i = 0; i < nodes.size(); i++) {
             if (i == 0) continue;
             if (StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/text()").toString().trim()).equals("")) continue;
+            if (StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/text()").toString().trim()).contains("{{{")) continue;
             JSONObject dss = new JSONObject();
             dss.put("skill_name", StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/text()").toString().trim()));
             dss.put("skill_content", StrUtils.cleanTRN(nodes.get(i).xpath("//td[2]/text()").toString().trim()));
