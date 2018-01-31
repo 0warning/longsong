@@ -39,7 +39,11 @@ public class Ship {
         ds.set("type", StrUtils.cleanTRN(selectable.xpath("//tr[3]//td[2]//text()").toString().trim()));
         ds.set("rarity", StrUtils.cleanTRN(selectable.xpath("//tr[3]//td[4]//text()").toString().trim()));
         ds.set("group", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[2]//text()").toString().trim()));
-        ds.set("building_time", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[4]//a/text()").toString().trim()));
+        try {
+            ds.set("building_time", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[4]//a/text()").toString().trim()));
+        } catch (Exception e) {
+            ds.set("building_time", StrUtils.cleanTRN(selectable.xpath("//tr[4]//td[4]/text()").toString().trim()));
+        }
         ds.set("catch_place", StrUtils.cleanTRN(StrUtils.delHTMLTag(selectable.xpath("//tr[5]//td[2]").toString())));
         ds.set("nutritive_value", StrUtils.cleanTRN(selectable.xpath("//tr[6]//td[2]//text()").toString().trim()));
         ds.set("sell_value", StrUtils.cleanTRN(selectable.xpath("//tr[7]//td[2]//text()").toString().trim()));
