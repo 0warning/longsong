@@ -115,7 +115,8 @@ public class Ship {
             dsa.put("adv_content", StrUtils.cleanTRN(nodes.get(i).xpath("//td[2]/text()").toString().trim()));
             array.add(dsa);
         }
-        return array.toJSONString();
+//        return array.toJSONString();
+        return "[]";
     }
 
     public String getRemakeJson() {
@@ -128,8 +129,13 @@ public class Ship {
         for (int i = 0; i < nodes.size(); i++) {
             if (i == 0 || i == 1) continue;
             if (i == nodes.size() - 1) {
-                remake.put("total", StrUtils.cleanTRN(nodes.get(i).xpath("//td/text()").toString().trim()));
-                break;
+                try {
+                    remake.put("total", StrUtils.cleanTRN(nodes.get(i).xpath("//td/b/text()").toString().trim()));
+                } catch (Exception e) {
+                    remake.put("total", StrUtils.cleanTRN(nodes.get(i).xpath("//td/text()").toString().trim()));
+                }
+//                break;
+                return remake.toJSONString();
             }
             JSONObject jo = new JSONObject();
             jo.put("project", StrUtils.cleanTRN(nodes.get(i).xpath("//td[1]/text()").toString().trim()));
@@ -186,6 +192,9 @@ public class Ship {
 
     public static String toStringShipAdvanced(DataShip dataShip) {
         JSONArray list = JSON.parseArray(dataShip.getAdvanced());
+        if (list == null || list.size() == 0) {
+            return "";
+        }
         StringBuffer sbf = new StringBuffer();
         sbf.append("舰娘进阶：");
         for (int i = 0; i < list.size(); i++) {
@@ -199,6 +208,9 @@ public class Ship {
 
     public static String toStringShipSkill(DataShip dataShip) {
         JSONArray list = JSON.parseArray(dataShip.getSkill());
+        if (list == null || list.size() == 0) {
+            return "";
+        }
         StringBuffer sbf = new StringBuffer();
         sbf.append("舰娘技能：");
         for (int i = 0; i < list.size(); i++) {
@@ -213,6 +225,9 @@ public class Ship {
     public static String toStringShipPerformance(DataShip dataShip) {
         JSONObject dsp = JSON.parseObject(dataShip.getPerformance());
         JSONObject dspm = JSON.parseObject(dataShip.getPerformanceMax());
+        if (dsp == null || dspm == null) {
+            return "";
+        }
         StringBuffer sbf = new StringBuffer();
         sbf.append("舰娘属性：");
         sbf.append(Data.newLine);
@@ -244,20 +259,22 @@ public class Ship {
         JSONArray list = remark.getJSONArray("detail");
         StringBuffer sbf = new StringBuffer();
         sbf.append("改造详情：");
-        for (int i = 0; i < list.size(); i++) {
-            sbf.append(Data.newLine);
-            sbf.append("改造项目：" + list.getJSONObject(i).getString("project"));
-            sbf.append(Data.newLine);
-            sbf.append("项目属性：" + list.getJSONObject(i).getString("project_performance"));
-            sbf.append(Data.newLine);
-            sbf.append("需求图纸：" + list.getJSONObject(i).getString("need_page"));
-            sbf.append(Data.newLine);
-            sbf.append("需求物资：" + list.getJSONObject(i).getString("need_resource"));
-            sbf.append(Data.newLine);
-            sbf.append("需求等级：" + list.getJSONObject(i).getString("need_level"));
-            sbf.append(Data.newLine);
-            sbf.append("需求星级：" + list.getJSONObject(i).getString("need_star"));
-            sbf.append(Data.newLine);
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                sbf.append(Data.newLine);
+                sbf.append("改造项目：" + list.getJSONObject(i).getString("project"));
+                sbf.append(Data.newLine);
+                sbf.append("项目属性：" + list.getJSONObject(i).getString("project_performance"));
+                sbf.append(Data.newLine);
+                sbf.append("需求图纸：" + list.getJSONObject(i).getString("need_page"));
+                sbf.append(Data.newLine);
+                sbf.append("需求物资：" + list.getJSONObject(i).getString("need_resource"));
+                sbf.append(Data.newLine);
+                sbf.append("需求等级：" + list.getJSONObject(i).getString("need_level"));
+                sbf.append(Data.newLine);
+                sbf.append("需求星级：" + list.getJSONObject(i).getString("need_star"));
+                sbf.append(Data.newLine);
+            }
         }
         sbf.append(Data.newLine);
         sbf.append("合计：" + remark.getString("total"));
