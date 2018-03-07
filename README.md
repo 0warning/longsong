@@ -15,3 +15,9 @@ WIKI [碧蓝WIKI](http://wiki.joyme.com/blhx/)
 框架 [JFinal](https://github.com/jfinal/jfinal)
 
 JDK 1.8
+
+---
+
+2018.3.7
+
+项目已废弃
